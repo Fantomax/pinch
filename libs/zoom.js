@@ -7,6 +7,14 @@ function Zoom (zoomViewer, options) {
         e.stopPropagation();
         self._zoomStart(e);
     }, false);
+
+    this.zoomEnd = function (e) {
+        self._zoomEnd(e);
+    };
+    this.zoomMove = function (e) {
+        self._zoom(e);
+    };
+
     this.scale = 1;
 }
 Zoom.prototype = {
@@ -30,16 +38,13 @@ Zoom.prototype = {
         this.startScale = this.scale;
         this.pinching = true;
 
-        this.zoomViewer.addEventListener('touchmove', function(e){
-            e.stopPropagation();
-            self._zoom(e);
-        }, false);
-        this.zoomViewer.addEventListener('touchend', function(e){
-            self._zoomEnd(e);
-        }, false);
-        this.zoomViewer.addEventListener('touchcancel', function(e){
-            self._zoomEnd(e);
-        }, false);
+        this.zoomViewer.removeEventListener('touchmove', this.zoomMove, false);
+        this.zoomViewer.removeEventListener('touchend', this.zoomEnd, false);
+        this.zoomViewer.removeEventListener('touchcancel', this.zoomEnd, false);
+
+        this.zoomViewer.addEventListener('touchmove', this.zoomMove, false);
+        this.zoomViewer.addEventListener('touchend', this.zoomEnd, false);
+        this.zoomViewer.addEventListener('touchcancel', this.zoomEnd, false);
     },
     _zoom: function (e) {
         if (!e.touches || e.touches.length !== 2 || !this.pinching) {
